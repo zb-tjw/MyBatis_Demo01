@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--mapper文件相当于DAO接口的“实现类”，namespace属性要指定“实现”DAO接口的全限定名：包名+类名-->
+<mapper namespace="com.qfedu.dao.StudentDAO">
+    <!--id的值要和DAO中方法一致, parameterType的值为对应的实体类, 这个属性也可以不写，因为在DAO中已经指定了Student参数-->
+    <!--useGeneratedKeys设置添加操作是否需要回填生成的主键赋值到参数对象的哪个属性-->
+    <!--keyProperty设置回填的主键值-->
+    <!--<insert id="insertStudent" parameterType="com.qfedu.pojo.Student" useGeneratedKeys="true" keyProperty="stuId">
+        insert into tb_students(stu_id, stu_num, stu_name, stu_gender, stu_age)
+        value(#{stuId}, #{stuNum}, #{stuName}, #{stuGender}, #{stuAge})
+    </insert>-->
+    <!--        <selectKey keyProperty="stuId" resultType="java.lang.Integer">-->
+    <!--            select last_insert_id()-->
+    <!--        </selectKey>-->
+    <insert id="insertStudent">
+        <selectKey keyProperty="stuId" resultType="java.lang.Integer">
+            select last_insert_id()
+        </selectKey>
+        insert into tb_students(stu_id, stu_num, stu_name, stu_gender, stu_age)
+            value(#{stuId}, #{stuNum}, #{stuName}, #{stuGender}, #{stuAge})
+    </insert>
+
+    <delete id="deleteStudent">
+        delete from tb_students where stu_num = #{stuNum}
+    </delete>
+
+    <update id="updateStudent">
+        update tb_students
+        set
+            stu_name = #{stuName},
+            stu_gender = #{stuGender},
+            stu_age = #{stuAge}
+        where
+            stu_num = #{stuNum}
+    </update>
+
+    <!--查询方式一：别名方式-->
+    <!--resultType指定查询结果封装的对象的实体类-->
+    <!--resultSets指定当前操作返回的集合类型（可省略，很智能，可根据DAO方法的类型自动返回）-->
+<!--    <select id="listStudents" resultType="com.qfedu.pojo.Student" resultSets="java.util.List">-->
+<!--        select-->
+<!--            stu_id stuId,-->
+<!--            stu_num stuNum,-->
+<!--            stu_name stuName,-->
+<!--            stu_gender stuGender,-->
+<!--            stu_age stuAge-->
+<!--        from tb_students-->
+<!--    </select>-->
+
+    <!--查询方式二：resultMap映射方式-->
+    <!--column 指定数据表中的列-->
+    <!--property 指定实体类中的属性-->
+    <resultMap id="studentMap" type="Student">
+        <id column="stu_id" property="stuId"/>
+        <result column="stu_num" property="stuNum"/>
+        <result column="stu_name" property="stuName"/>
+        <result column="stu_gender" property="stuGender"/>
+        <result column="stu_age" property="stuAge"/>
+    </resultMap>
+    <!--有了resultMap就可以省略resultType-->
+    <select id="listStudents" resultMap="studentMap">
+        select
+            stu_id,
+            stu_num,
+            stu_name,
+            stu_gender,
+            stu_age
+        from tb_students
+    </select>
+
+    <select id="queryStudent" resultMap="studentMap">
+        select
+            stu_id,
+            stu_num,
+            stu_name,
+            stu_gender,
+            stu_age
+        from tb_students
+        where stu_num = #{stuNum}
+    </select>
+
+    <select id="getCount" resultType="int">
+        select
+            count(*)
+        from tb_students
+    </select>
+
+    <select id="listStudentsByPage" resultMap="studentMap">
+        select
+            stu_id,
+            stu_num,
+            stu_name,
+            stu_gender,
+            stu_age
+        from tb_students
+        limit #{start}, #{pageSize}
+    </select>
+    
+</mapper>
